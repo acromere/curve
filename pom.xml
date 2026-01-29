@@ -47,21 +47,22 @@
 		<java.version>21</java.version>
 
 		<!-- Version numbers updated 29 Jan 2026 -->
+		<zevra.version>0.12-SNAPSHOT</zevra.version>
 		<tinyspline.version>0.6.0-1</tinyspline.version>
 	</properties>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.tinyspline</groupId>
-			<artifactId>tinyspline</artifactId>
-			<version>${tinyspline.version}</version>
+			<groupId>com.acromere</groupId>
+			<artifactId>zevra</artifactId>
+			<version>${zevra.version}</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>
-			<groupId>com.acromere</groupId>
-			<artifactId>zevra</artifactId>
-			<version>0.12-SNAPSHOT</version>
-			<scope>test</scope>
+			<groupId>org.tinyspline</groupId>
+			<artifactId>tinyspline</artifactId>
+			<version>${tinyspline.version}</version>
 		</dependency>
 	</dependencies>
 
