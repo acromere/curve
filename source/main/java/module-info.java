@@ -1,4 +1,4 @@
-module com.avereon.curve {
+module com.acromere.curve {
 	requires tinyspline;
-	exports com.avereon.curve.math;
+	exports com.acromere.curve.math;
 }
