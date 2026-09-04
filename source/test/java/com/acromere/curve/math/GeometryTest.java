@@ -3,7 +3,6 @@ package com.acromere.curve.math;
 import com.acromere.curve.assertion.VectorArrayAssert;
 import com.acromere.curve.assertion.VectorAssert;
 import org.assertj.core.data.Offset;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -13,7 +12,6 @@ import java.util.stream.Stream;
 
 import static com.acromere.curve.math.Constants.HALF_CIRCLE;
 import static com.acromere.curve.math.Constants.QUARTER_CIRCLE;
-import static com.acromere.test.TestTag.AI_GENERATED;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class GeometryTest {
@@ -726,7 +724,6 @@ public class GeometryTest {
 	}
 
 	@Test
-	@Tag( AI_GENERATED )
 	void testTheta() {
 		// Test theta(double x, double y) - points in different quadrants
 		// First quadrant (0 to π/2)
