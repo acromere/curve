@@ -379,6 +379,26 @@ public class GeometryTest {
 	}
 
 	@Test
+	void testPointQuadDistance() {
+		double[] a = Point.of( 0, 0, 0 );
+		double[] b = Point.of( 0.5, 1.0, 0 );
+		double[] c = Point.of( 1, 0, 0 );
+
+		// Points on the curve
+		assertThat( Geometry.pointQuadDistance( a, a, b, c ) ).isCloseTo( 0.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointQuadDistance( c, a, b, c ) ).isCloseTo( 0.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointQuadDistance( Point.of( 0.5, 0.5, 0 ), a, b, c ) ).isCloseTo( 0.0, Offset.offset( 1e-12 ) );
+
+		// Distance to apex
+		assertThat( Geometry.pointQuadDistance( Point.of( 0.5, 1.0, 0 ), a, b, c ) ).isCloseTo( 0.5, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointQuadDistance( Point.of( 0.5, -0.5, 0 ), a, b, c ) ).isCloseTo( Math.sqrt( 0.5 ), Offset.offset( 1e-12 ) );
+
+		// Beyond endpoints
+		assertThat( Geometry.pointQuadDistance( Point.of( -1, 0, 0 ), a, b, c ) ).isCloseTo( 1.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointQuadDistance( Point.of( 2, 0, 0 ), a, b, c ) ).isCloseTo( 1.0, Offset.offset( 1e-12 ) );
+	}
+
+	@Test
 	void testPointCubicDistance() {
 		double[] a = Point.of( 0, 0, 0 );
 		double[] b = Point.of( 0, 1, 0 );

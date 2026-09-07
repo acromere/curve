@@ -1059,6 +1059,21 @@ public class Geometry {
 	}
 
 	/**
+	 * Compute the shortest distance between p and the quadratic Bézier defined by a,b,c.
+	 *
+	 * @param p The point
+	 * @param a The quadratic Bézier point a
+	 * @param b The quadratic Bézier control point b
+	 * @param c The quadratic Bézier point c
+	 * @return the shortest distance between p and the quadratic Bézier curve
+	 */
+	public static double pointQuadDistance( double[] p, double[] a, double[] b, double[] c ) {
+		double[] c1 = Point.of( a[ 0 ] + 2.0 / 3.0 * (b[ 0 ] - a[ 0 ]), a[ 1 ] + 2.0 / 3.0 * (b[ 1 ] - a[ 1 ]), a.length > 2 && b.length > 2 ? a[ 2 ] + 2.0 / 3.0 * (b[ 2 ] - a[ 2 ]) : 0.0 );
+		double[] c2 = Point.of( c[ 0 ] + 2.0 / 3.0 * (b[ 0 ] - c[ 0 ]), c[ 1 ] + 2.0 / 3.0 * (b[ 1 ] - c[ 1 ]), c.length > 2 && b.length > 2 ? c[ 2 ] + 2.0 / 3.0 * (b[ 2 ] - c[ 2 ]) : 0.0 );
+		return pointCubicDistance( p, a, c1, c2, c );
+	}
+
+	/**
 	 * Compute the shortest distance between p and the cubic Bézier defined by a,b,c,d.
 	 *
 	 * @param p The point
