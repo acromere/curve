@@ -379,6 +379,59 @@ public class GeometryTest {
 	}
 
 	@Test
+	void testPointCubicDistance() {
+		double[] a = Point.of( 0, 0, 0 );
+		double[] b = Point.of( 0, 1, 0 );
+		double[] c = Point.of( 1, 1, 0 );
+		double[] d = Point.of( 1, 0, 0 );
+
+		// Points on the curve
+		assertThat( Geometry.pointCubicDistance( a, a, b, c, d ) ).isCloseTo( 0.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointCubicDistance( d, a, b, c, d ) ).isCloseTo( 0.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointCubicDistance( Geometry.curvePoint( a, b, c, d, 0.5 ), a, b, c, d ) ).isCloseTo( 0.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointCubicDistance( Geometry.curvePoint( a, b, c, d, 0.25 ), a, b, c, d ) ).isCloseTo( 0.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointCubicDistance( Geometry.curvePoint( a, b, c, d, 0.75 ), a, b, c, d ) ).isCloseTo( 0.0, Offset.offset( 1e-12 ) );
+
+		// Symmetric test cases
+		assertThat( Geometry.pointCubicDistance( Point.of( 0.5, 0.5, 0 ), a, b, c, d ) ).isCloseTo( 0.25, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointCubicDistance( Point.of( 0.5, 1.0, 0 ), a, b, c, d ) ).isCloseTo( 0.25, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointCubicDistance( Point.of( 0.5, 1.25, 0 ), a, b, c, d ) ).isCloseTo( 0.5, Offset.offset( 1e-12 ) );
+
+		// Points beyond endpoints
+		assertThat( Geometry.pointCubicDistance( Point.of( -1, 0, 0 ), a, b, c, d ) ).isCloseTo( 1.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointCubicDistance( Point.of( 2, 0, 0 ), a, b, c, d ) ).isCloseTo( 1.0, Offset.offset( 1e-12 ) );
+
+		// Collinear curve (straight line segment)
+		double[] la = Point.of( 0, 0, 0 );
+		double[] lb = Point.of( 1, 0, 0 );
+		double[] lc = Point.of( 2, 0, 0 );
+		double[] ld = Point.of( 3, 0, 0 );
+		assertThat( Geometry.pointCubicDistance( Point.of( 1.5, 2.0, 0.0 ), la, lb, lc, ld ) ).isCloseTo( 2.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointCubicDistance( Point.of( -1.0, 0.0, 0.0 ), la, lb, lc, ld ) ).isCloseTo( 1.0, Offset.offset( 1e-12 ) );
+		assertThat( Geometry.pointCubicDistance( Point.of( 5.0, 0.0, 0.0 ), la, lb, lc, ld ) ).isCloseTo( 2.0, Offset.offset( 1e-12 ) );
+
+		// 3D curve
+		double[] a3d = Point.of( 0, 0, 0 );
+		double[] b3d = Point.of( 0, 0, 1 );
+		double[] c3d = Point.of( 0, 1, 1 );
+		double[] d3d = Point.of( 1, 1, 1 );
+		double[] mid3d = Geometry.curvePoint( a3d, b3d, c3d, d3d, 0.5 );
+		assertThat( Geometry.pointCubicDistance( mid3d, a3d, b3d, c3d, d3d ) ).isCloseTo( 0.0, Offset.offset( 1e-12 ) );
+
+		// Degenerate curve (all points equal)
+		double[] single = Point.of( 1, 2, 3 );
+		assertThat( Geometry.pointCubicDistance( Point.of( 1, 2, 5 ), single, single, single, single ) ).isCloseTo( 2.0, Offset.offset( 1e-12 ) );
+
+		// 2D arrays (length 2)
+		double[] p2 = new double[]{ 0.5, 0.5 };
+		double[] a2 = new double[]{ 0, 0 };
+		double[] b2 = new double[]{ 0, 1 };
+		double[] c2 = new double[]{ 1, 1 };
+		double[] d2 = new double[]{ 1, 0 };
+		assertThat( Geometry.pointCubicDistance( p2, a2, b2, c2, d2 ) ).isCloseTo( 0.25, Offset.offset( 1e-12 ) );
+	}
+
+	@Test
 	void testInterpolateCubicNatural() {
 		double tolerance = 1e-7;
 		double[][] points = new double[][]{ Point.of( 0, 0 ), Point.of( 0, 1 ), Point.of( 1, 1 ), Point.of( 1, 0 ), Point.of( 2, 0 ), Point.of( 2, 1 ), Point.of( 3, 1 ), Point.of( 3, 0 ) };

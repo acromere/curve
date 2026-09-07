@@ -1059,6 +1059,95 @@ public class Geometry {
 	}
 
 	/**
+	 * Compute the shortest distance between p and the cubic Bézier defined by a,b,c,d.
+	 *
+	 * @param p The point
+	 * @param a The cubic Bézier point a
+	 * @param b The cubic Bézier point b
+	 * @param c The cubic Bézier point c
+	 * @param d The cubic Bézier point d
+	 * @return the shortest distance between p and the cubic Bézier curve
+	 */
+	public static double pointCubicDistance( double[] p, double[] a, double[] b, double[] c, double[] d ) {
+		double px = p[ 0 ], py = p[ 1 ], pz = p.length > 2 ? p[ 2 ] : 0.0;
+		double ax = a[ 0 ], ay = a[ 1 ], az = a.length > 2 ? a[ 2 ] : 0.0;
+		double bx = b[ 0 ], by = b[ 1 ], bz = b.length > 2 ? b[ 2 ] : 0.0;
+		double cx = c[ 0 ], cy = c[ 1 ], cz = c.length > 2 ? c[ 2 ] : 0.0;
+		double dx = d[ 0 ], dy = d[ 1 ], dz = d.length > 2 ? d[ 2 ] : 0.0;
+
+		double[] p3 = Point.of( px, py, pz );
+		double[] a3 = Point.of( ax, ay, az );
+		double[] b3 = Point.of( bx, by, bz );
+		double[] c3 = Point.of( cx, cy, cz );
+		double[] d3 = Point.of( dx, dy, dz );
+
+		double c3x = dx - 3 * cx + 3 * bx - ax;
+		double c3y = dy - 3 * cy + 3 * by - ay;
+		double c3z = dz - 3 * cz + 3 * bz - az;
+
+		double c2x = 3 * ax - 6 * bx + 3 * cx;
+		double c2y = 3 * ay - 6 * by + 3 * cy;
+		double c2z = 3 * az - 6 * bz + 3 * cz;
+
+		double c1x = -3 * ax + 3 * bx;
+		double c1y = -3 * ay + 3 * by;
+		double c1z = -3 * az + 3 * bz;
+
+		double v0x = ax - px;
+		double v0y = ay - py;
+		double v0z = az - pz;
+
+		double c3DotC3 = c3x * c3x + c3y * c3y + c3z * c3z;
+		double c3DotC2 = c3x * c2x + c3y * c2y + c3z * c2z;
+		double c3DotC1 = c3x * c1x + c3y * c1y + c3z * c1z;
+		double c3DotV0 = c3x * v0x + c3y * v0y + c3z * v0z;
+		double c2DotC2 = c2x * c2x + c2y * c2y + c2z * c2z;
+		double c2DotC1 = c2x * c1x + c2y * c1y + c2z * c1z;
+		double c2DotV0 = c2x * v0x + c2y * v0y + c2z * v0z;
+		double c1DotC1 = c1x * c1x + c1y * c1y + c1z * c1z;
+		double c1DotV0 = c1x * v0x + c1y * v0y + c1z * v0z;
+
+		double k5 = 3 * c3DotC3;
+		double k4 = 5 * c3DotC2;
+		double k3 = 4 * c3DotC1 + 2 * c2DotC2;
+		double k2 = 3 * c2DotC1 + 3 * c3DotV0;
+		double k1 = c1DotC1 + 2 * c2DotV0;
+		double k0 = c1DotV0;
+
+		Polynomial poly = new Polynomial( k5, k4, k3, k2, k1, k0 );
+		double minDistance = Math.min( Vector.distance( p3, a3 ), Vector.distance( p3, d3 ) );
+
+		if( poly.getDegree() > 0 ) {
+			double[] roots = poly.getRootsInInterval( 0.0, 1.0 );
+			Polynomial deriv = poly.getDerivative();
+			for( double root : roots ) {
+				double t = Math.clamp( root, 0.0, 1.0 );
+				for( int iter = 0; iter < 3; iter++ ) {
+					double fVal = poly.evaluate( t );
+					double fPrime = deriv.evaluate( t );
+					if( Math.abs( fPrime ) > 1e-14 ) {
+						double nextT = t - fVal / fPrime;
+						if( nextT >= 0.0 && nextT <= 1.0 ) {
+							t = nextT;
+						} else {
+							break;
+						}
+					} else {
+						break;
+					}
+				}
+				double[] pt = curvePoint( a3, b3, c3, d3, t );
+				double dist = Vector.distance( p3, pt );
+				if( dist < minDistance ) {
+					minDistance = dist;
+				}
+			}
+		}
+
+		return minDistance;
+	}
+
+	/**
 	 * Get the nearest point in a set of points to the specified point.
 	 *
 	 * @param point The point from which to check
