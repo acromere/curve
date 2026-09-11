@@ -193,10 +193,10 @@ public class Geometry {
 
 	/**
 	 * Computes the phase theta by computing an arc tangent of y/x in the range of
-	 * 0 to 2pi.
+	 * 0 to 2*pi.
 	 *
-	 * @param x
-	 * @param y
+	 * @param x The x coordinate
+	 * @param y The y coordinate
 	 * @return the theta component of the point (r, theta) in polar coordinates
 	 *         that corresponds to the point (x, y) in Cartesian coordinates.
 	 */
@@ -208,7 +208,7 @@ public class Geometry {
 
 	/**
 	 * Computes the phase theta by computing an arc tangent of y/x in the range of
-	 * 0 to 2pi using point a as the origin.
+	 * 0 to 2*pi using point 'a' as the origin.
 	 *
 	 * @param a The origin.
 	 * @param b The point to calculate the angle for.
@@ -337,7 +337,7 @@ public class Geometry {
 
 	/**
 	 * Get the distance between a point and an arc, including elliptic arcs. If
-	 * the point angle is between start and extent then the distance is the
+	 * the point angle is between start and extent, then the distance is the
 	 * distance to the ellipse, otherwise, the distance is the distance to the
 	 * closest endpoint.
 	 *
@@ -519,12 +519,58 @@ public class Geometry {
 	 * @return The bounds of the arc as two points
 	 */
 	public static double[][] arcBounds( double[] origin, double[] radii, double rotate, double start, double extent ) {
-		double[][] points = arcEndPoints( origin, radii, rotate, start, extent );
-		double[][] b = ellipseBounds( origin, radii, rotate );
+		if( Math.abs( extent ) >= Constants.FULL_CIRCLE ) return ellipseBounds( origin, radii, rotate );
 
-		// NEXT Implement Geometry.arcBounds()
+		List<double[]> points = new ArrayList<>( 6 );
+		points.add( ellipsePoint( origin, radii, rotate, start ) );
+		points.add( ellipsePoint( origin, radii, rotate, start + extent ) );
 
-		return b;
+		double sinRot = Math.sin( rotate );
+		double cosRot = Math.cos( rotate );
+
+		double rx = radii[ 0 ];
+		double ry = radii[ 1 ];
+
+		double tx1 = Math.atan2( -ry * sinRot, rx * cosRot );
+		double tx2 = tx1 + Math.PI;
+
+		double ty1 = Math.atan2( ry * cosRot, rx * sinRot );
+		double ty2 = ty1 + Math.PI;
+
+		if( isAngleOnArc( tx1, start, extent ) ) points.add( ellipsePoint( origin, radii, rotate, tx1 ) );
+		if( isAngleOnArc( tx2, start, extent ) ) points.add( ellipsePoint( origin, radii, rotate, tx2 ) );
+		if( isAngleOnArc( ty1, start, extent ) ) points.add( ellipsePoint( origin, radii, rotate, ty1 ) );
+		if( isAngleOnArc( ty2, start, extent ) ) points.add( ellipsePoint( origin, radii, rotate, ty2 ) );
+
+		return bounds( points.toArray( new double[ 0 ][] ) );
+	}
+
+	private static boolean isAngleOnArc( double angle, double start, double extent ) {
+		if( Math.abs( extent ) >= Constants.FULL_CIRCLE ) return true;
+		if( extent == 0.0 ) return false;
+
+		double diff = (angle - start) % Constants.FULL_CIRCLE;
+		if( extent > 0 ) {
+			if( diff < -Constants.RESOLUTION_ANGLE ) {
+				diff += Constants.FULL_CIRCLE;
+			} else if( diff < 0 ) {
+				diff = 0.0;
+			}
+			if( diff > Constants.FULL_CIRCLE - Constants.RESOLUTION_ANGLE ) {
+				diff = 0.0;
+			}
+			return diff <= extent + Constants.RESOLUTION_ANGLE;
+		} else {
+			if( diff > Constants.RESOLUTION_ANGLE ) {
+				diff -= Constants.FULL_CIRCLE;
+			} else if( diff > 0 ) {
+				diff = 0.0;
+			}
+			if( diff < -Constants.FULL_CIRCLE + Constants.RESOLUTION_ANGLE ) {
+				diff = 0.0;
+			}
+			return diff >= extent - Constants.RESOLUTION_ANGLE;
+		}
 	}
 
 	/**
@@ -556,7 +602,7 @@ public class Geometry {
 	}
 
 	public static double arcLength( double[] c, double[] r, double rotate, double start, double extent, double tolerance ) {
-		// If the arc is circular then use the circle formula
+		// If the arc is circular, then use the circle formula
 		if( isCircular( r ) ) return r[ 0 ] * Math.abs( extent );
 
 		// Calc the elliptic arc length parametrically
@@ -1134,12 +1180,12 @@ public class Geometry {
 
 		if( poly.getDegree() > 0 ) {
 			double[] roots = poly.getRootsInInterval( 0.0, 1.0 );
-			Polynomial deriv = poly.getDerivative();
+			Polynomial derivative = poly.getDerivative();
 			for( double root : roots ) {
 				double t = Math.clamp( root, 0.0, 1.0 );
 				for( int iter = 0; iter < 3; iter++ ) {
 					double fVal = poly.evaluate( t );
-					double fPrime = deriv.evaluate( t );
+					double fPrime = derivative.evaluate( t );
 					if( Math.abs( fPrime ) > 1e-14 ) {
 						double nextT = t - fVal / fPrime;
 						if( nextT >= 0.0 && nextT <= 1.0 ) {

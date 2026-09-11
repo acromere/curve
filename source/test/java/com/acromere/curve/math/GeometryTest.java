@@ -243,6 +243,7 @@ public class GeometryTest {
 
 	private static Stream<Arguments> arcBoundsArguments() {
 		return Stream.of(
+			// Full ellipse via large extent (180 radians)
 			Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), 0, 0, 180, Vector.of( -2, -1 ), Vector.of( 2, 1 ) ),
 			Arguments.arguments(
 				Vector.of( 0, 0 ),
@@ -253,15 +254,32 @@ public class GeometryTest {
 				Vector.of( -1.5811388300841898, -1.5811388300841898 ),
 				Vector.of( 1.5811388300841898, 1.5811388300841898 )
 			),
-			Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), QUARTER_CIRCLE, 0, 180, Vector.of( -1, -2 ), Vector.of( 1, 2 ) )
+			Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), QUARTER_CIRCLE, 0, 180, Vector.of( -1, -2 ), Vector.of( 1, 2 ) ),
+
+			// Half arc rotated 0 degrees
+			Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), 0, 0, HALF_CIRCLE, Vector.of( -2, 0 ), Vector.of( 2, 1 ) ),
+			// Half arc rotated 45 degrees
+			Arguments.arguments(
+				Vector.of( 0, 0 ),
+				Point.of( 2, 1 ),
+				0.5 * QUARTER_CIRCLE,
+				0,
+				HALF_CIRCLE,
+				Vector.of( -1.5811388300841898, -Math.sqrt( 2 ) ),
+				Vector.of( Math.sqrt( 2 ), 1.5811388300841898 )
+			),
+			// Half arc rotated 90 degrees
+			Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), QUARTER_CIRCLE, 0, HALF_CIRCLE, Vector.of( -1, -2 ), Vector.of( 0, 2 ) ),
+
+			// Half arc clockwise (negative extent)
+			Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), 0, 0, -HALF_CIRCLE, Vector.of( -2, -1 ), Vector.of( 2, 0 ) ),
+
+			// Quarter arc (first quadrant)
+			Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), 0, 0, QUARTER_CIRCLE, Vector.of( 0, 0 ), Vector.of( 2, 1 ) ),
+
+			// Arc with translated origin
+			Arguments.arguments( Vector.of( 5, -3 ), Point.of( 2, 1 ), 0, 0, HALF_CIRCLE, Vector.of( 3, -3 ), Vector.of( 7, -2 ) )
 		);
-		//		return Stream.of(
-		//			// Correct for half arc rotated 0 degrees
-		//			Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), 0, 0, 180, Vector.of( -2, 0 ), Vector.of( 2, 1 ) ),
-		//			//Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), 0.5 * QUARTER_CIRCLE, 0, 180, Vector.of( -1.5811388300841898, -1.5811388300841898 ), Vector.of( 1.5811388300841898, 1.5811388300841898 ) ),
-		//			// Correct for half arc rotated 90 degrees
-		//			Arguments.arguments( Vector.of( 0, 0 ), Point.of( 2, 1 ), QUARTER_CIRCLE, 0, 180, Vector.of( -1, -2 ), Vector.of( 0, 2 ) )
-		//		);
 	}
 
 	@Test
